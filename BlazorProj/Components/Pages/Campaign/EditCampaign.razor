@@ -1,0 +1,112 @@
+﻿@page "/editcampaign"
+@page "/editcampaign/{id:int}"
+@inject CampaignClients CampaignClients
+@rendermode InteractiveServer 
+@inject NavigationManager _navigationManager
+
+
+<PageTitle>@title</PageTitle>
+<h3>@title</h3>
+
+@if(campaign == null)
+{
+    <div class="text-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@campaign" FormName="editCampaign" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>                
+               
+                <div class="mb-3">
+                    <label class="form-label">Name:</label>
+                    <InputText id="name" class="form-control" @bind-Value="campaign.Name"></InputText>
+                    <ValidationMessage For="()=>campaign.Name"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Start Date:</label>
+                    <InputDate id="campaignStartDate" class="form-control" @bind-Value="campaign.StartDate"></InputDate>
+                    <ValidationMessage For="()=>campaign.StartDate"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">End Date:</label>
+                    <InputDate id="campaignEndDate" class="form-control" @bind-Value="campaign.EndDate"></InputDate>
+                    <ValidationMessage For="()=>campaign.EndDate"></ValidationMessage>
+                </div>
+                <div class="mb-3 form-check">                    
+                    <InputCheckbox id="status" class="form-check-input" @bind-Value="campaign.Status" checked="@(campaign.Status?"checked":null)"></InputCheckbox>
+                    <label class="form-label">Status</label>
+                    <ValidationMessage For="()=>campaign.Status"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">UpdateOn:</label>
+                    <InputDate id="updatedOn" class="form-control" @bind-Value="campaign.UpdatedOn"></InputDate>
+                </div>
+                <div class="form-group py-2">
+                    @if(Id == null)
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Add</button>
+                    }
+                    else
+                    {
+                       <button type="submit" class="btn btn-primary me-2">Update</button> 
+                    }
+
+                    <a href="/campaignList" class="btn btn-info text-white">Back to home</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public int? Id { get; set; }
+
+    private string title = string.Empty;
+
+    [SupplyParameterFromForm]
+    private CampaignDetails? campaign{ get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if(campaign != null)
+        {
+            return;
+        }
+        if(Id != null)
+        {
+            campaign = CampaignClients.GetCampaign(Id.Value);
+            title = $"Edit {campaign.Name}";
+        }
+        else
+        {
+            campaign = new()
+            {
+                    Name = string.Empty,
+                    StartDate = DateOnly.FromDateTime(DateTime.UtcNow),
+                    EndDate = DateOnly.FromDateTime(DateTime.UtcNow),                    
+                    UpdatedOn = DateTime.Now.AddHours(1)
+            };
+            title = "New Campaign";
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        ArgumentNullException.ThrowIfNull(campaign);
+        if(Id == null)
+        {
+            CampaignClients.AddCampaign(campaign);
+        }
+        else
+        {            
+            campaign.Id = Id.Value;
+            CampaignClients.UpdateCampaign(campaign);
+        }
+        _navigationManager.NavigateTo("/");
+    }
+}

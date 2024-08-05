@@ -1,0 +1,122 @@
+﻿@page "/userupsert"
+@page "/userupsert/{id:long}"
+@inject UserClients userClients
+@rendermode InteractiveServer
+@inject NavigationManager _navigationManager
+
+
+<PageTitle>@title</PageTitle>
+<h3>@title</h3>
+@if(User == null)
+{
+    <div class="text-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@User" FormName="userUpser" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="mb-3">
+                    <label class="form-label">First Name:</label>
+                    <InputText id="fName" class="form-control" @bind-Value="User.FirstName"></InputText>
+                    <ValidationMessage For="()=>User.FirstName"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Last Name:</label>
+                    <InputText id="lName" class="form-control" @bind-Value="User.LastName"></InputText>
+                    <ValidationMessage For="()=>User.LastName"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Email:</label>
+                    <InputText id="email" class="form-control" @bind-Value="User.Email"></InputText>
+                    <ValidationMessage For="()=>User.Email"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Phone Number:</label>
+                    <InputText id="phone" class="form-control" @bind-Value="User.Phone"></InputText>
+                    <ValidationMessage For="()=>User.Phone"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Password:</label>
+                    <InputText id="password" class="form-control" @bind-Value="User.Password"></InputText>
+                    <ValidationMessage For="()=>User.Password"></ValidationMessage>
+                </div>
+                <div class="mb-3 form-check">
+                    <InputCheckbox id="status" class="form-check-input" @bind-Value="User.Status" checked="@(User.Status?"checked":null)"></InputCheckbox>
+                    <label class="form-label">Status:</label>
+                    <ValidationMessage For="()=>User.Status"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">UpdatedOn:</label>
+                    <InputDate id="updatedOn" class="form-control" @bind-Value="User.UpdatedOn"></InputDate>
+                </div>
+                <div class="form-group py-2">
+                    @if (Id == null)
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Add</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Update</button>
+                    }
+
+                    <a href="/user" class="btn btn-info text-white">Back to home</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public long? Id{ get; set; }
+
+    private string? title { get; set; }
+
+    [SupplyParameterFromForm]
+    private UserDetails? User { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if(User != null)
+        {
+            return;
+        }
+        if (Id != null)
+        {
+            User = userClients.GetUser(Id.Value);
+            title = "Edit";
+        }
+        else
+        {
+            User = new()
+            {
+                FirstName = string.Empty,
+                LastName = string.Empty,
+                Email = string.Empty,
+                Phone = string.Empty,
+                Password = string.Empty,
+                UpdatedOn = DateTime.Now
+            };
+            title = "New User";
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        ArgumentNullException.ThrowIfNull(User);
+        if (Id == null)
+        {
+            userClients.AddUser(User);
+        }
+        else
+        {
+            User.Id = Id.Value;
+            userClients.UpdateUser(User);            
+        }
+        _navigationManager.NavigateTo("/user");
+    }
+}

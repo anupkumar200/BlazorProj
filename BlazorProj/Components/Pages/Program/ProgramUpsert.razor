@@ -1,0 +1,104 @@
+﻿@page "/programUpsert"
+@page "/programUpsert/{id:long}"
+@inject ProgramClients programClients
+@rendermode InteractiveServer
+@inject NavigationManager _navigationManager
+
+
+<PageTitle>@title</PageTitle>
+<h3 class="text-primary">@title</h3>
+@if (Details == null)
+{
+    <div class="text-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@Details" FormName="groceryStoreUpsert" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="mb-3">
+                    <label class="form-label">Name:</label>
+                    <InputText id="name" class="form-control" @bind-Value="Details.Name"></InputText>
+                    <ValidationMessage For="()=>Details.Name"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Case Manager:</label>
+                    <InputText id="case" class="form-control" @bind-Value="Details.CaseManager"></InputText>
+                    <ValidationMessage For="()=>Details.CaseManager"></ValidationMessage>
+                </div>
+                <div class="mb-3 form-check">
+                    <InputCheckbox id="status" class="form-check-input" @bind-Value="Details.Status" checked="@(Details.Status?"checked":null)"></InputCheckbox>
+                    <label class="form-label">Status</label>
+                    <ValidationMessage For="()=>Details.Status"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">UpdatedOn:</label>
+                    <InputDate id="updatedOn" class="form-control" @bind-Value="Details.UpdatedOn"></InputDate>
+                    
+                </div>
+                <div class="form-group py-2">
+                    @if (Id == null)
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Add</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Update</button>
+                    }
+
+                    <a href="/programList" class="btn btn-info text-white">Back to home</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public long? Id { get; set; }
+
+    private string? title { get; set; }
+
+    [SupplyParameterFromForm]
+    private ProgramDetails? Details { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Details != null)
+        {
+            return;
+        }
+        if (Id != null)
+        {
+            Details = programClients.GetProgram(Id.Value);
+            title = "Edit";
+        }
+        else
+        {
+            Details = new()
+                {
+                    Name = string.Empty,
+                    UpdatedOn = DateTime.Now
+                };
+            title = "New Program";
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        ArgumentNullException.ThrowIfNull(Details);
+        if (Id == null)
+        {
+            programClients.AddProgram(Details);
+        }
+        else
+        {
+            Details.Id = Id.Value;
+            programClients.UpdateProgram(Details);
+        }
+        _navigationManager.NavigateTo("/programList");
+    }
+}

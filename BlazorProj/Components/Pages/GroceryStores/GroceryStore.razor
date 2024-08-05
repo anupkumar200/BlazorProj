@@ -1,0 +1,63 @@
+﻿@page "/groceryStore"
+@inject GroceryStoreClients Clients
+
+<div class="row mt-2">
+    <div class="col-md-6">
+        <h3 class="text-primary">Grocery Store`s List</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <a class="btn btn-primary" role="button" href="/grocerystoreupsert">Add Store</a>
+    </div>
+</div>
+@if (stores == null)
+{
+    <div class="text-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <table class="table table-striped table-bordered table-hover mt-3">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>                
+                <th>Status</th>
+                @* <th>UpdatedOn</th> *@
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var store in stores)
+            {
+                <tr>
+                    <td>@store.Id</td>
+                    <td>@store.Name</td>                    
+                    <td>@(store.Status?"Active":"InActive")</td>
+                    @* <td>@store.UpdatedOn</td> *@
+                    <td>
+                        <NavLink href="@($"groceryStoreUpsert/{store.Id}")" class="btn btn-primary"><i class="bi bi-pencil-square"></i></NavLink>
+                        <button data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(store)" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+
+                       <DeleteGroceryStore Store="@store" ></DeleteGroceryStore>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+@code {
+    private GroceryStores[]? stores;
+
+    protected override void OnInitialized()
+    {
+        stores = Clients.GetGroceryStore();
+    }
+
+    private string GetDeleteModalId(GroceryStores Stores)
+    {
+        return $"#{DeleteGroceryStore.GetModalId(Stores)}";
+    }
+}

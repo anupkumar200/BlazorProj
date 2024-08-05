@@ -1,0 +1,65 @@
+﻿@page "/programList"
+@inject ProgramClients Clients
+
+<div class="row mt-2">
+    <div class="col-md-6">
+        <h3 class="text-primary">Program`s List</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <a class="btn btn-primary" role="button" href="/programUpsert">Add Program</a>
+    </div>
+</div>
+@if (programms == null)
+{
+    <div class="text-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <table class="table table-striped table-bordered table-hover mt-3">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Case Manager</th>
+                <th>Status</th>
+                @* <th>UpdatedOn</th> *@
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var prog in programms)
+            {
+                <tr>
+                    <td>@prog.Id</td>
+                    <td>@prog.Name</td>
+                    <td>@prog.CaseManager</td>
+                    <td>@(prog.Status?"Active":"InActive")</td>
+                    @* <td>@prog.UpdatedOn</td> *@
+                    <td>
+                        <NavLink href="@($"programUpsert/{prog.Id}")" class="btn btn-primary"><i class="bi bi-pencil-square"></i></NavLink>
+                        <button data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(prog)" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+
+                        <DeleteProgram programm="@prog"></DeleteProgram>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+}
+
+@code {
+    private Programm[]? programms;
+
+    protected override void OnInitialized()
+    {
+        programms = Clients.GetProgram();
+    }
+
+    private string GetDeleteModalId(Programm prog)
+    {
+        return $"#{DeleteProgram.GetModalId(prog)}";
+    }
+}

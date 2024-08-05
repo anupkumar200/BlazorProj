@@ -1,0 +1,69 @@
+﻿@page "/campaignList"
+@inject CampaignClients Clients
+@attribute [Authorize(Roles = "Administrator")]
+
+<PageTitle>Dashboard</PageTitle>
+<div class="row mt-2">
+    <div class="col-md-6">
+        <h3 class="text-primary">Campaign`s List</h3>
+    </div>
+    <div class="col-md-6 text-end">
+        <a class="btn btn-primary" role="button" href="/editcampaign">New Campaign</a>
+    </div>
+</div>
+@if (campaigns == null)
+{
+    <div class="text-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <table class="table table-striped table-bordered table-hover mt-3">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Name</th>
+                <th>Campaign Start Date</th>
+                <th>Campaign End Date</th>
+                <th>Status</th>
+                <th>Last Update</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var campaign in campaigns)
+            {
+                <tr>
+                    <td>@campaign.Id</td>
+                    <td>@campaign.Name</td>
+                    <td>@campaign.StartDate</td>
+                    <td>@campaign.EndDate</td>
+                    <td>@(campaign.Status ? "Active" : "InActive")</td>
+                    <td>@campaign.UpdatedOn</td>
+                    <td>
+                        <NavLink href="@($"editcampaign/{campaign.Id}")" class="btn btn-primary"><i class="bi bi-pencil-square"></i></NavLink>
+                        <button data-bs-toggle="modal" data-bs-target="@GetDeleteModalId(campaign)" class="btn btn-danger"><i class="bi bi-trash"></i></button>
+
+                        <DeleteCampaign Campaign="@campaign"></DeleteCampaign>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+
+@code {
+    private Campaign[]? campaigns;
+
+    protected override void OnInitialized()
+    {
+        campaigns = Clients.GetCampaigns();
+    }
+    private string GetDeleteModalId(Campaign campaign)
+    {
+        return $"#{DeleteCampaign.GetModalId(campaign)}";
+    }
+
+}

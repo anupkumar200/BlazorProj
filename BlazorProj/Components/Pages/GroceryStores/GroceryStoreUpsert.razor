@@ -1,0 +1,98 @@
+﻿@page "/groceryStoreUpsert"
+@page "/groceryStoreUpsert/{id:long}"
+@inject GroceryStoreClients groceryStoreClients
+@rendermode InteractiveServer
+@inject NavigationManager _navigationManager
+
+
+<PageTitle>@title</PageTitle>
+<h3>@title</h3>
+@if (Grocery == null)
+{
+    <div class="text-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@Grocery" FormName="groceryStoreUpsert" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="mb-3">
+                    <label class="form-label">Name:</label>
+                    <InputText id="name" class="form-control" @bind-Value="Grocery.Name"></InputText>
+                    <ValidationMessage For="()=>Grocery.Name"></ValidationMessage>
+                </div> 
+                <div class="mb-3 form-check">
+                    <InputCheckbox id="status" class="form-check-input" @bind-Value="Grocery.Status" checked="@(Grocery.Status?"checked":null)"></InputCheckbox>
+                    <label class="form-label">Status</label>
+                    <ValidationMessage For="()=>Grocery.Status"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">UpdatedOn:</label>
+                    <InputDate id="updatedOn" class="form-control" @bind-Value="Grocery.UpdatedOn"></InputDate>
+                </div>
+                <div class="form-group py-2">
+                    @if (Id == null)
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Add</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Update</button>
+                    }
+
+                    <a href="/groceryStore" class="btn btn-info text-white">Back to home</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>   
+}
+
+@code {
+    [Parameter]
+    public long? Id { get; set; }
+
+    private string? title { get; set; }
+
+    [SupplyParameterFromForm]
+    private GroceryStoreDetails? Grocery { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        if (Grocery != null)
+        {
+            return;
+        }
+        if (Id != null)
+        {
+            Grocery = groceryStoreClients.GetGrocery(Id.Value);
+            title = "Edit";
+        }
+        else
+        {
+            Grocery = new()
+                {
+                    Name = string.Empty,
+                    UpdatedOn = DateTime.Now
+                };
+            title = "New Grocery";
+        }
+    }
+
+    private void HandleSubmit()
+    {
+        ArgumentNullException.ThrowIfNull(Grocery);
+        if (Id == null)
+        {
+            groceryStoreClients.AddGroceryStore(Grocery);
+        }
+        else
+        {
+            Grocery.Id = Id.Value;
+            groceryStoreClients.UpdateGroceryStore(Grocery);
+        }
+        _navigationManager.NavigateTo("/groceryStore");
+    }
+}

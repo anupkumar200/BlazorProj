@@ -1,0 +1,68 @@
+﻿@page "/login"
+@using BlazorProj.Authentication
+@inject CustomAuthStateProvider CustomAuthStateProvider
+@inject UserClients Clients
+@inject IJSRuntime _jsRuntime
+@inject NavigationManager NavigationManager
+@rendermode InteractiveServer
+
+<h3>Login</h3>
+<style>
+    .message {
+        background-color: #f7dcdc;
+        color: #ff6363;
+        font-size: 20px;
+        font-weight: bold;
+        text-align: center;
+        padding:4px;
+    }
+</style>
+
+
+
+@* <div class="message">@Message</div> *@
+<div class="row">
+    <div class="col-md-6">
+        <EditForm Model="@Model" FormName="loginForm" OnValidSubmit="HandleSubmit">
+            <DataAnnotationsValidator></DataAnnotationsValidator>
+            <div class="mb-3">
+                <label class="form-label">Email:</label>
+                <InputText id="email" class="form-control" @bind-Value="Model.Email"></InputText>
+                <ValidationMessage For="()=>Model.Email"></ValidationMessage>
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Password:</label>
+                <InputText id="password" class="form-control" @bind-Value="Model.Password"></InputText>
+                <ValidationMessage For="()=>Model.Password"></ValidationMessage>
+            </div>
+            <div class="form-group py-2">
+                <button type="submit" class="btn btn-primary">Login</button>
+            </div>
+        </EditForm>
+    </div>
+</div>
+
+@code {    
+
+    private LoginModel Model = new();
+
+    private string? Message{ get; set; }    
+
+    private async Task HandleSubmit()
+    {
+        var userAccount = Clients.GetByUserName(Model.Email!);
+        if(userAccount == null || userAccount.Password != Model.Password)
+        {
+            await _jsRuntime.InvokeVoidAsync("alert", "Invalid Username or password");
+            return;
+        }
+
+        var customAuth = (CustomAuthStateProvider)CustomAuthStateProvider;
+        await customAuth.UpdateAuthenticationState(new UserSession
+            {
+                UserName = userAccount.Email,
+                Role = userAccount.Role
+            });
+            NavigationManager.NavigateTo("/",true);        
+    }
+}
