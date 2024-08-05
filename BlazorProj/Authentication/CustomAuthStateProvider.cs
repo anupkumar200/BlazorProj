@@ -17,7 +17,7 @@ namespace BlazorProj.Authentication
         public override async Task<AuthenticationState> GetAuthenticationStateAsync()
         {
             try
-            {
+            {                
                 var userSessionStorage = await _sessionStorage.GetAsync<UserSession>("UserSession");
                 var userSession = userSessionStorage.Success ? userSessionStorage.Value : null;
                 if (userSession == null)

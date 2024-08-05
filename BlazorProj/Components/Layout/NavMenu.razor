@@ -1,4 +1,4 @@
-﻿@using Microsoft.AspNetCore.Components.Authorization
+﻿
 <div class="top-row ps-3 navbar navbar-dark">
     <div class="container-fluid">
         <a class="navbar-brand" href="">BlazorProj</a>
@@ -15,25 +15,46 @@
             </NavLink>
         </div>        
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="campaignList" Match="NavLinkMatch.All">
-                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Campaign
+            <NavLink class="nav-link" href="campaignList" Match="NavLinkMatch.All" @onclick="() => HandleCampaignListClick()">
+                <span class="bi bi-house-door-fill-nav-menu" aria-hidden="true"></span> Campaign                
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="user">
+            <NavLink class="nav-link" href="user" @onclick="() => HandleUserClick()">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> User
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="groceryStore">
+            <NavLink class="nav-link" href="groceryStore" @onclick="() => HandleGroceryStoreClick()">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Grocery
             </NavLink>
         </div>
         <div class="nav-item px-3">
-            <NavLink class="nav-link" href="programList">
+            <NavLink class="nav-link" href="programList" @onclick="() => HandleProgramListClick()">
                 <span class="bi bi-plus-square-fill-nav-menu" aria-hidden="true"></span> Program
             </NavLink>
         </div>            
     </nav>
 </div>
 
+@code{
+    private async Task HandleNavLinkClick(string href)
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity!.IsAuthenticated)
+        {
+            _navigationManager.NavigateTo(href);
+        }
+        else
+        {
+            _navigationManager.NavigateTo("/login");
+        }
+    }
+    
+    private Task HandleCampaignListClick() => HandleNavLinkClick("campaignList");
+    private Task HandleUserClick() => HandleNavLinkClick("user");
+    private Task HandleGroceryStoreClick() => HandleNavLinkClick("groceryStore");
+    private Task HandleProgramListClick() => HandleNavLinkClick("programList");
+}
