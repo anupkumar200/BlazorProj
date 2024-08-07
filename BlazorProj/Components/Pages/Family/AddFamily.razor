@@ -1,0 +1,33 @@
+﻿@page "/addFamily"
+@inject CampaignClients Client
+
+<h3>AddFamily</h3>
+
+<div class="row">
+    <div class="col-md-5">
+        @* <EditForm Model="@details" FormName="addFamily"> *@
+        <div class="mb-3">
+            <label class="form-label">Campaign</label>
+            <InputSelect class="form-control" @bind-Value="details.Id">
+                <option value="">Select a Campaign</option>
+                @foreach(var camp in campaigns)
+                {
+                    <option value="@camp.Id">@camp.Name</option>
+                }
+            </InputSelect>
+        </div>
+        @* </EditForm> *@
+    </div>
+</div>
+@code {
+    [SupplyParameterFromForm]
+    private CampaignDetails? details{ get; set; }
+    private Campaign[]? campaigns;
+
+    protected override void OnInitialized()
+    {
+        campaigns = Client.GetCampaigns();
+    }
+
+    
+}

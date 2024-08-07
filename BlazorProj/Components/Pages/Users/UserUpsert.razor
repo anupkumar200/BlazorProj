@@ -17,7 +17,7 @@ else
 {
     <div class="row">
         <div class="col-md-6">
-            <EditForm Model="@User" FormName="userUpser" OnValidSubmit="HandleSubmit">
+            <EditForm Model="@User" FormName="userUpsert" OnValidSubmit="HandleSubmit">
                 <DataAnnotationsValidator></DataAnnotationsValidator>
                 <div class="mb-3">
                     <label class="form-label">First Name:</label>
@@ -117,6 +117,7 @@ else
             User.Id = Id.Value;
             userClients.UpdateUser(User);            
         }
-        _navigationManager.NavigateTo("/user");
+        _navigationManager.NavigateTo("/user",true);
+        _navigationManager.Refresh();
     }
 }

@@ -2,21 +2,13 @@
 @page "/dashboard"
 @inject IJSRuntime _jsRuntime
 <PageTitle>Dashboard</PageTitle>
-<AuthorizeView>
-    <Authorized>
-        <h1>Hello,@context.User.Identity.Name!</h1>
-    </Authorized>
+<AuthorizeView>    
     <NotAuthorized>
-        <h1>Hello,Guest!</h1>
+        <h1 class="text-primary">If you want to show more functionality, please <a href="/login">login</a> !</h1>
     </NotAuthorized>
 </AuthorizeView>
 <h3 class="text-primary">Welcome to blazor</h3>
-<AuthorizeView>
-    <Authorized>
-        <br /><br />
-        <button class="btn btn-outline-primary" @onclick="DisplayGreetingAlert">Display Greeting Alert</button>
-    </Authorized>
-</AuthorizeView>
+
 
 @code{
     [CascadingParameter]

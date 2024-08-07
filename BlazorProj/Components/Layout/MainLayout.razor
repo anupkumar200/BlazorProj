@@ -3,28 +3,62 @@
 @inject AuthenticationStateProvider authStateProvider
 @inject NavigationManager _navigationManager
 
-<div class="page">
+@* <div class="page">
     <div class="sidebar">
         <NavMenu />
-    </div>
+    </div> *@
 
     <main>
-        <div class="top-row px-4">
-            <AuthorizeView>                
-                <Authorized>
-                    <a @onclick="Logout" href="javascript:void(0)">Logout</a>
-                </Authorized>
-                <NotAuthorized>
-                    <a href="/login">Login</a>
-                </NotAuthorized>
-            </AuthorizeView>
+    <nav class="navbar navbar-expand-lg bg-body-tertiary">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Blazor</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+                    <li class="nav-item">
+                        <a class="nav-link active" aria-current="page" href="">Home</a>
+                    </li>
+                    @* <li class="nav-item">
+                        <a class="nav-link" href="#">Link</a>
+                    </li> *@
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            Dropdown
+                        </a>
+                        <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="campaignList" @onclick="() => HandleCampaignListClick()">Campaign</a></li>
+                            <li><a class="dropdown-item" href="user" @onclick="() => HandleUserClick()">User</a></li>
+                            <li><a class="dropdown-item" href="groceryStore" @onclick="() => HandleGroceryStoreClick()">Grocery</a></li>
+                            <li><a class="dropdown-item" href="programList" @onclick="() => HandleProgramListClick()">Program</a></li>
+                            <li><a class="dropdown-item" href="familyList" @onclick="() => HandleFamilyListClick()">Family</a></li>
+                            <li><a class="dropdown-item" href="addFamily">Add Family</a></li>
+                            @* <li><hr class="dropdown-divider"></li>
+                            <li><a class="dropdown-item" href="#">Something else here</a></li> *@
+                        </ul>
+                    </li>                    
+                </ul>                
+                <div class="d-flex">
+                    <AuthorizeView>
+                        <Authorized>
+                            <h6 class="mt-2 me-4">Hello,@context.User.Identity.Name!</h6>
+                            <a class="btn btn-danger" @onclick="Logout" href="javascript:void(0)"><i class="bi bi-power"></i></a>
+                        </Authorized>
+                        <NotAuthorized>
+                            <a class="btn btn-primary" href="/login">Login</a>
+                        </NotAuthorized>
+                    </AuthorizeView>
+                </div>
+            </div>
         </div>
+    </nav>      
 
         <article class="content px-4">
             @Body
         </article>
     </main>
-</div>
+@* </div> *@
 
 <div id="blazor-error-ui">
     An unhandled error has occurred.
@@ -39,4 +73,25 @@
         await customAuthState.UpdateAuthenticationState(null);
         _navigationManager.NavigateTo("/", true);
     }
+
+    private async Task HandleNavLinkClick(string href)
+    {
+        var authState = await AuthenticationStateProvider.GetAuthenticationStateAsync();
+        var user = authState.User;
+
+        if (user.Identity!.IsAuthenticated)
+        {
+            _navigationManager.NavigateTo(href);
+        }
+        else
+        {
+            _navigationManager.NavigateTo("/login");
+        }
+    }
+
+    private Task HandleCampaignListClick() => HandleNavLinkClick("campaignList");
+    private Task HandleUserClick() => HandleNavLinkClick("user");
+    private Task HandleGroceryStoreClick() => HandleNavLinkClick("groceryStore");
+    private Task HandleProgramListClick() => HandleNavLinkClick("programList");
+    private Task HandleFamilyListClick() => HandleNavLinkClick("familyList");
 }

@@ -1,0 +1,129 @@
+﻿@page "/familyUpsert"
+@page "/familyUpsert/{id:long}"
+@inject FamilyService _service
+@inject RelationService relationService
+@rendermode InteractiveServer
+@inject NavigationManager _navigationManager
+
+<h3>@title</h3>
+
+@if (family == null)
+{
+    <div class="text-center">
+        <img src="/images/loading.gif" />
+    </div>
+}
+else
+{
+    <div class="row">
+        <div class="col-md-6">
+            <EditForm Model="@family" FormName="familyUpsert" OnValidSubmit="HandleSubmit">
+                <DataAnnotationsValidator></DataAnnotationsValidator>
+                <div class="mb-3">
+                    <label class="form-label">Name:</label>
+                    <InputText class="form-control" @bind-Value="family.Name"></InputText>
+                    <ValidationMessage For="()=>family.Name"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Age:</label>
+                    <InputNumber class="form-control" @bind-Value="family.Age"></InputNumber>
+                    <ValidationMessage For="()=>family.Age"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Gender:</label>
+                    <InputText class="form-control" @bind-Value="family.Gender"></InputText>
+                    <ValidationMessage For="()=>family.Gender"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Relation:</label>
+                    <InputSelect class="form-control" @bind-Value="family.RelationId">
+                        <option value="">Select a Relation</option>
+                        @foreach(var relation in relations)
+                        {
+                            <option value="@relation.Id">@relation.Name</option>
+                        }
+                    </InputSelect>
+                    <ValidationMessage For="()=>family.RelationId"></ValidationMessage>
+                </div>
+                <div class="mb-3">
+                    <label class="form-label">Description:</label>
+                    <InputTextArea class="form-control" @bind-Value="family.Description"></InputTextArea>
+                    <ValidationMessage For="()=> family.Description"></ValidationMessage>
+                </div>
+                
+                <div class="form-group py-2">
+                    @if (Id == null)
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Add</button>
+                    }
+                    else
+                    {
+                        <button type="submit" class="btn btn-primary me-2">Update</button>
+                    }
+
+                    <a href="/familyList" class="btn btn-info text-white">Back to home</a>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+}
+
+
+@code {
+    [Parameter]
+    public long? Id { get; set; }
+
+    private string? title { get; set; }
+
+    [SupplyParameterFromForm]
+    private FamilyDetails? family { get; set; }
+
+    private Relation[]? relations;
+
+    protected override void OnParametersSet()
+    {
+        if (family != null)
+        {
+            return;
+        }
+        if (Id != null)
+        {
+            family = _service.GetFamily(Id.Value);
+            title = "Edit";
+        }
+        else
+        {
+            family = new()
+                {
+                    Name = string.Empty,
+                    Age = 0,
+                    Gender = string.Empty,
+                    // RelationId = string.Empty,
+                    Description = string.Empty
+
+                };
+            title = "New Family";
+        }
+    }
+
+    protected override void OnInitialized()
+    {
+        relations = relationService.GetRelations();
+    }
+
+    private void HandleSubmit()
+    {
+        ArgumentNullException.ThrowIfNull(family);
+        if (Id == null)
+        {
+            _service.AddMember(family);
+        }
+        else
+        {
+            family.FamilyHeadId = Id.Value;
+            _service.UpdateFamily(family);
+        }
+        _navigationManager.NavigateTo("/familyList");
+        
+    }
+}

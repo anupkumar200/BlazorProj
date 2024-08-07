@@ -43,7 +43,7 @@ namespace BlazorProj.Clients.Programs
             }
         ];
         public Programm[] GetProgram() => [.. program];
-
+        
         public void AddProgram(ProgramDetails objPro)
         {
             var prog = new Programm

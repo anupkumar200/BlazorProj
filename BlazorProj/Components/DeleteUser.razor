@@ -46,7 +46,8 @@
 
     private void Confirm()
     {
-        Clients.DeleteUser(User!.Id);
-        _navigationManager.Refresh();
+        Clients.DeleteUser(User!.Id);      
+        _navigationManager.NavigateTo("/user");
+        _navigationManager.Refresh();       
     }
 }

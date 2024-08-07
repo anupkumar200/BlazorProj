@@ -7,20 +7,7 @@
 @rendermode InteractiveServer
 
 <h3>Login</h3>
-<style>
-    .message {
-        background-color: #f7dcdc;
-        color: #ff6363;
-        font-size: 20px;
-        font-weight: bold;
-        text-align: center;
-        padding:4px;
-    }
-</style>
 
-
-
-@* <div class="message">@Message</div> *@
 <div class="row">
     <div class="col-md-6">
         <EditForm Model="@Model" FormName="loginForm" OnValidSubmit="HandleSubmit">
@@ -59,10 +46,10 @@
 
         var customAuth = (CustomAuthStateProvider)CustomAuthStateProvider;
         await customAuth.UpdateAuthenticationState(new UserSession
-            {
-                UserName = userAccount.Email,
-                Role = userAccount.Role
-            });
-            NavigationManager.NavigateTo("/",true);        
+        {
+            UserName = userAccount.Email,
+            Role = userAccount.Role
+        });
+        NavigationManager.NavigateTo("/",true);        
     }
 }

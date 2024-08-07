@@ -54,8 +54,7 @@ namespace BlazorProj.Clients
             }
         ];
 
-        public Campaign[] GetCampaigns() => [..campaigns];
-
+        public Campaign[] GetCampaigns() => [..campaigns];        
         public void AddCampaign(CampaignDetails objCampaign)
         {
             var campaign = new Campaign
